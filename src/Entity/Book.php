@@ -15,33 +15,42 @@ class Book
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getBooks", "getBookFromAuthor", "getEditors"])]
+    #[Groups(["getBooks", "getBookFromAuthor", "getEditors", "getReaders"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getBooks", "getBookFromAuthor", "getEditors"])]
+    #[Groups(["getBooks", "getBookFromAuthor", "getEditors", "getReaders"])]
     private ?string $title = null;
 
     #[ORM\Column]
-    #[Groups(["getBooks", "getBookFromAuthor", "getEditors"])]
+    #[Groups(["getBooks", "getBookFromAuthor", "getEditors", "getReaders"])]
     private ?int $years = null;
 
     #[ORM\Column]
-    #[Groups(["getBooks", "getBookFromAuthor", "getEditors"])]
+    #[Groups(["getBooks", "getBookFromAuthor", "getEditors", "getReaders"])]
     private ?float $price = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(["getBooks", "getBookFromAuthor", "getEditors"])]
+    #[Groups(["getBooks", "getBookFromAuthor", "getEditors", "getReaders"])]
     private ?string $description = null;
 
     #[ORM\ManyToOne(inversedBy: 'book')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["getBooks", "getEditors"])]
+    #[Groups(["getBooks", "getEditors", "getReaders"])]
     private ?Author $author = null;
 
     #[ORM\ManyToOne(inversedBy: 'books')]
-    #[Groups(["getBooks", "getBookFromAuthor"])]
+    #[Groups(["getBooks", "getBookFromAuthor", "getReaders"])]
     private ?Editor $editor = null;
+
+    #[ORM\ManyToMany(targetEntity: Reader::class, mappedBy: 'books')]
+    #[Groups(["getBooks"])]
+    private Collection $readers;
+
+    public function __construct()
+    {
+        $this->readers = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -117,6 +126,33 @@ class Book
     public function setEditor(?Editor $editor): static
     {
         $this->editor = $editor;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Reader>
+     */
+    public function getReaders(): Collection
+    {
+        return $this->readers;
+    }
+
+    public function addReader(Reader $reader): static
+    {
+        if (!$this->readers->contains($reader)) {
+            $this->readers->add($reader);
+            $reader->addBook($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReader(Reader $reader): static
+    {
+        if ($this->readers->removeElement($reader)) {
+            $reader->removeBook($this);
+        }
 
         return $this;
     }

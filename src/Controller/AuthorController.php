@@ -20,7 +20,7 @@ class AuthorController extends AbstractController
     {
         $authorList = $authorRepository->findAll();
         $jsonAuthorList = $serializer->serialize($authorList, 'json', ["groups" => "getBookFromAuthor"]);
-        return new JsonResponse($jsonAuthorList, Response::HTTP_OK, [], true);
+        return new JsonResponse($jsonAuthorList, Response::HTTP_OK, ['Access-Control-Allow-Origin' => 'http://localhost:8080'], true);
     }
 
     #[Route('/api/author/{id}', name: 'app_author_get_id', methods: ['GET'])]

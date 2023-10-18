@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Book;
+use App\Entity\Reader;
 use App\Repository\AuthorRepository;
 use App\Repository\BookRepository;
 use App\Repository\EditorRepository;
+use App\Repository\ReaderRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -104,5 +106,62 @@ class BookController extends AbstractController
         $em->persist($updatedBook);
         $em->flush();
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/api/book/searchYear/{year}', name: 'app_book_search_year', methods: ['GET'])]
+    public function getBookByYear
+    (
+        int $year,
+        BookRepository $bookRepository,
+        SerializerInterface $serializer
+    ): JsonResponse
+    {
+        $books = $bookRepository->findAllGreaterThanYear($year);
+
+        $jsonBooks = $serializer->serialize($books, 'json', ['groups' => 'getBooks']);
+
+        return new JsonResponse($jsonBooks, Response::HTTP_OK, [], true);
+    }
+
+    #[Route('/api/book/searchLowerYear/{year}', name: 'app_book_search_lower_year', methods: ['GET'])]
+    public function getBookByLowerYear
+    (
+        int $year,
+        BookRepository $bookRepository,
+        SerializerInterface $serializer
+    ): JsonResponse
+    {
+        $books = $bookRepository->findAllLowerThanYear($year);
+
+        $jsonBooks = $serializer->serialize($books, 'json', ['groups' => 'getBooks']);
+
+        return new JsonResponse($jsonBooks, Response::HTTP_OK, [], true);
+    }
+
+    #[Route('/api/bookR/{id}/{idBook}', name: 'app_book_search_lower_y', methods: ['POST'])]
+    public function addReader
+    (
+        Reader $reader,
+        int $idBook,
+        ReaderRepository $readerRepository,
+        BookRepository $bookRepository,
+        EntityManagerInterface $em
+    ): JsonResponse
+    {
+        $reader = $readerRepository->find($reader->getId());
+        $book = $bookRepository->find($idBook);
+
+        if ($reader && $book) {
+            $book->addReader($reader);
+
+            $em->persist($book);
+
+            $em->flush();
+
+            return new JsonResponse(["message" => "Reader added"], Response::HTTP_OK);
+        }
+        return new JsonResponse(["message" => "ReaderNotFound"], Response::HTTP_NOT_FOUND);
+
+
     }
 }

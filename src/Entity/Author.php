@@ -14,19 +14,19 @@ class Author
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getBooks", "getBookFromAuthor", "getEditors"])]
+    #[Groups(["getBooks", "getBookFromAuthor", "getEditors", "getReaders"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getBooks", "getBookFromAuthor", "getEditors"])]
+    #[Groups(["getBooks", "getBookFromAuthor", "getEditors", "getReaders"])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getBooks", "getBookFromAuthor", "getEditors"])]
+    #[Groups(["getBooks", "getBookFromAuthor", "getEditors", "getReaders"])]
     private ?string $firstName = null;
 
     #[ORM\Column]
-    #[Groups(["getBooks", "getBookFromAuthor", "getEditors"])]
+    #[Groups(["getBooks", "getBookFromAuthor", "getEditors", "getReaders"])]
     private ?int $age = null;
 
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Book::class, orphanRemoval: true)]
